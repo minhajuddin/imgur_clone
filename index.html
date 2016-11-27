@@ -2,7 +2,49 @@
 
 <a href='/'>Imgur</a> | <a href='/new.html'>New Upload</a>
 
-<br />
+<h2>All Images</h2>
 
+<div id="container">
+  Loading...
+</div>
 
-Show all images....
+<script src="https://code.jquery.com/jquery-3.1.1.min.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+  $(function(){
+    $.get("https://api.liveformhq.com/v1/forms/369c5f72-7940-4d20-b3c7-8a963fc49a15/messages", {
+        api_key: "11d43d92-d928-4a8b-b55c-50f98227c794"
+      },
+      function(response) {
+        var body = "",
+          messages = response.messages;
+        for(var i=0; i < messages.length; i++){
+          body += imageTemplate(messages[i], i + 1)
+        }
+
+        body += pagnationTemplate(response);
+
+        $("#container").html(body)
+      })
+  })
+
+  function pagnationTemplate(response){
+    var meta = response.meta;
+    return  "<div>" +
+      "<h4> Showing " + response.messages.length  + " records out of " + meta.total_count + ", page " + meta.current_page + " of " + meta.total_pages + " </h4>" +
+      "<div>"+(meta.next_link ? "<a href='"+meta.next_link+"'>Next</a>" : "" ) + "|" + (meta.prev_link ? "<a href='"+meta.prev_link+"'>Prev</a>" : "")  +"</div>" +
+            "</div>";
+  }
+
+  function imageTemplate(message, id){
+    if (!message.data.upload) {
+      return "";
+    }
+
+    var title = (message.data.title || "Untitled");
+
+    return "<div class='post'>" +
+        "<h2>" + id + "." + title + "</h2>" +
+        "<div class=image><img alt='" + title + "' style='max-width: 100%;' src='" + message.data.upload + "' /></div>" +
+        "</div>"
+  }
+</script>
